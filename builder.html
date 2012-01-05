@@ -4,88 +4,182 @@
   <meta charset="utf-8">
   <title>builder</title>
   <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="builder.css">
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
   <script src="jquery.min.js"></script>
+  <script src="jquery-ui.min.js"></script>
   <script src="knockout-2.0.0.js"></script>
+  <script src="bootstrap-tabs.js"></script>
   <script src="form_example.js"></script>
-  <script src="builder.js"></script>
   <style type="text/css" media="screen">
-    #builder .form-fields .field-wrapper {
-      padding: 5px;
+    #builder .field-wrapper {
+      display: block;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 10px 10px 15px 10px;
       border: 1px solid transparent;
+      margin: 0px 0px 10px 0px;
+    }
+    #builder .field-wrapper * {
+      cursor: pointer;
+      color: #000;
+    }
+    #builder .field-wrapper:hover {
+      border: 1px dashed #c0c0c0;
     }
 
-    #builder .form-fields .field-wrapper.selected {
-      border: 1px solid #C2D7EF;
-      background-color: #DFEFFF;
+    #builder .field-wrapper.selected {
+      border: 1px solid #9ABA9E;
+      background-color: #E1FFEE;
     }
+
+    #builder #add-field-pane a {
+      width: 136px;
+    }
+
   </style>
 </head>
 <body>
-  <h1>Form Builder</h1>
-  <div id="builder">
-    <div class="row">
-      <div class="span6">
-        <div class="form-settings">
-          <h3>Form Settings</h3>
-          <form class="form-stacked">
-            <div class="clearfix">
-              <label for="form-name">Name</label>
-              <div class="input">
-                <input data-bind="value: form.name" class="xlarge" id="form-name" size="30" type="text">
-              </div>
-            </div>
-            <div class="clearfix">
-              <label for="form-description">Description</label>
-              <div class="input">
-                <textarea data-bind="value: form.description" class="xlarge"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="field-settings" data-bind="with: selectedField">
-          <h3>Field Settings</h3>
-          <form class="form-stacked">
-            <div class="clearfix">
-              <label for="field-name">Title</label>
-              <div class="input">
-                <input data-bind="value: title" class="xlarge" id="field-name" size="30" type="text">
-              </div>
-            </div>
-          </form>
-        </div>
+  <div class="container">
+    <div class="content" id="builder">
+      <div class="page-header">
+        <h1>Form Builder</h1>
+        <a href="" class="btn primary" data-bind="click:getJSON">Get JSON</a>
       </div>
-      <div class="span10">
-        <div class="form-header">
-          <h2 data-bind="text: form.name"></h2>
-          <p data-bind="text: form.description"></p>
-        </div>
-        <div class="form-fields">
-          <form class="form-stacked">
-            <fieldset data-bind="foreach: form.fields">
-              <div class="field-wrapper" data-bind="click: $root.selectField, css: { selected: $data == $root.selectedField() }">
-                <label data-bind="text: title"></label>
-                <div data-bind="template: { name: previewTemplate, data: $data}"></div>
+      <div class="row">
+        <div class="span6" id="sidebar">
+          <ul class="tabs" data-tabs="tabs">
+            <li class="active"><a href="#add-field-pane">Add a Field</a></li>
+            <li><a href="#field-settings">Field Settings</a></li>
+            <li><a href="#form-settings">Form Settings</a></li>
+          </ul>
+
+          <div id="my-tab-content" class="tab-content">
+            <div class="tab-pane active" id="add-field-pane">
+              <div class="row">
+                <div class="span3">
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="text">Single Line Text</a></p>
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="textarea">Paragraph Text</a></p>
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="date">Date</a></p>
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="time">Time</a></p>
+                </div>
+                <div class="span3">
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="address">Address</a></p>
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="checkbox">Checboxes</a></p>
+                  <p><a href="" class="btn small" data-bind="click: addField" data-type="money">Price</a></p>
+                </div>
               </div>
-            </fieldset>
-          </form>
+            </div>
+
+            <div class="tab-pane" id="field-settings">
+              <form class="form-stacked" data-bind="with: selectedField">
+                <div class="clearfix">
+                  <label for="field-name">Field label</label>
+                  <div class="input">
+                    <textarea data-bind="value: title" class="xlarge"></textarea>
+                  </div>
+                </div>
+                <div class="clearfix">
+                  <label>Field Type:</label>
+                  <select data-bind="options: $root.FieldTypes, optionsText: 'label', value: type"></select>
+                </div>
+                <div class="clearfix">
+                  <label>Required</label>
+                  <input type="checkbox" data-bind="checked: required">
+                </div>
+                <div data-bind="template: { name: settingsTemplate, data: $data}"></div>
+              </form>
+            </div>
+
+            <div class="tab-pane" id="form-settings">
+              <form class="form-stacked">
+                <div class="clearfix">
+                  <label for="form-name">Name</label>
+                  <div class="input">
+                    <input data-bind="value: form.name" class="xlarge" id="form-name" size="30" type="text">
+                  </div>
+                </div>
+                <div class="clearfix">
+                  <label for="form-description">Description</label>
+                  <div class="input">
+                    <textarea data-bind="value: form.description" class="xlarge"></textarea>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+        <div class="span10">
+
+          <a class="form-header field-wrapper" href="" data-bind="click: resetSelectedField">
+            <h2 data-bind="text: form.name"></h2>
+            <p data-bind="text: form.description"></p>
+          </a>
+
+          <div class="form-fields">
+            <form class="form-stacked">
+              <fieldset data-bind="foreach: form.fields, sortableList: form.fields">
+                <a class="field-wrapper" href=""
+                   data-bind="click: $root.selectField,
+                              css: { selected: $data == $root.selectedField() }">
+                  <label data-bind="text: title"></label>
+                  <div data-bind="template: { name: previewTemplate, data: $data}"></div>
+                </a>
+              </fieldset>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
 
+
+  <!-- Text Field -->
   <script type="text/html" id="text-field-preview-template">
-    <input type="text">
+    <input type="text" data-bind="attr: { 'class': size().value }">
+  </script>
+  <script type="text/html" id="text-field-settings-template">
+    <div class="clearfix">
+      <label>Field Size</label>
+      <select data-bind="options: type().options.sizes, optionsText: 'label', value: size"></select>
+    </div>
   </script>
 
+  <!-- Select Field -->
+  <script type="text/html" id="select-field-settings-template">
+  </script>
   <script type="text/html" id="select-field-preview-template">
     <select data-bind="foreach: choices" disabled>
       <option data-bind="text: Choice"></option>
     </select>
   </script>
 
+  <script type="text/html" id="textarea-field-settings-template">
+  </script>
+
+  <script type="text/html" id="date-field-settings-template">
+  </script>
+
+  <script type="text/html" id="time-field-settings-template">
+  </script>
+
+  <script type="text/html" id="address-field-settings-template">
+  </script>
+
+  <script type="text/html" id="checkbox-field-settings-template">
+  </script>
+
+  <script type="text/html" id="money-field-settings-template">
+  </script>
+
+  <!-- Preview templates for each field type -->
+
   <script type="text/html" id="textarea-field-preview-template">
-    <textarea></textarea>
+    <textarea readonly></textarea>
   </script>
 
   <script type="text/html" id="date-field-preview-template">
@@ -113,14 +207,114 @@
   </script>
 
   <script>
+    ko.bindingHandlers.draggable = {
+      init: function(element, valueAccessor) {
+        var options = valueAccessor();
+        $(element).draggable(options);
+      }
+    };
+
+    ko.bindingHandlers.sortableList = {
+      init: function(element, valueAccessor) {
+        var list = valueAccessor();
+        $(element).sortable({
+          start: function(event, ui) {
+            $(this).data('old-index', ui.item.index());
+          },
+
+          update: function(event, ui) {
+            var oldIndex = $(this).data('old-index'),
+                newIndex = ui.item.index(),
+                item = list()[oldIndex];
+            // TODO Update array
+          }
+        });
+      }
+    };
+
+    var Option = function(value, label) {
+      this.value = value;
+      this.label = label;
+    };
+
+    var FieldType = function(name, label, options) {
+      this.name = name;
+      this.label = label;
+      this.options = options || {};
+    };
+
+    FieldType.prototype.getSize = function(value) {
+      if (!this.options.sizes) {
+        return null;
+      }
+      var sizes = this.options.sizes;
+      for (var i = 0, len = sizes.length; i < len; i++) {
+        var size = sizes[i];
+        if (size.value === value) {
+          return size;
+        }
+      }
+      return null;
+    };
+
+    var FieldTypes = [
+      new FieldType('text', "Single Text Line", {
+        sizes: [
+          new Option('small', 'Small'),
+          new Option('medium', 'Medium'),
+          new Option('large', 'Large')
+        ]
+      }),
+      new FieldType('select', "Drop Down"),
+      new FieldType('textarea', "Paragraph Text"),
+      new FieldType('date', "Date"),
+      new FieldType('time', "Time"),
+      new FieldType('address', "Address"),
+      new FieldType('checkbox', "Checkboxes"),
+      new FieldType('money', "Price")
+    ];
+
+    var getFieldTypeByName = function(name) {
+      for (var i = 0, len = FieldTypes.length; i < len; i++) {
+        var fieldType = FieldTypes[i];
+        if (fieldType.name === name) {
+          return fieldType;
+        }
+      }
+      return null;
+    };
+
     var FormBuilderViewModel = function(form) {
       var self = this;
+
+      this.FieldTypes = FieldTypes;
 
       this.form = new FormViewModel(form.Name, form.Description, form.Fields);
       this.selectedField = ko.observable(null);
 
       this.selectField = function(field) {
         self.selectedField(field);
+      };
+
+      this.resetSelectedField = function() {
+        self.selectedField(null);
+      };
+
+      this.getJSON = function() {
+        // console.log(ko.toJSON(self.form));
+
+        self.form.fields.push(new FieldViewModel(FORM_EXAMPLE.Fields[0]));
+
+      };
+
+      this.addField = function(data, event) {
+        var type_name = $(event.target).data('type');
+        var newField = new FieldViewModel({
+          Title: "Untitled",
+          Typeof: type_name
+        });
+        self.form.fields.push(newField);
+        self.selectField(newField);
       };
     };
 
@@ -137,12 +331,21 @@
 
     var FieldViewModel = function(data) {
       var self = this;
+
       this.title = ko.observable(data.Title);
-      this.type = ko.observable(data.Typeof);
-      this.choices = ko.observable(data.Choices)
+      this.type = ko.observable(getFieldTypeByName(data.Typeof));
+      this.choices = ko.observable(data.Choices);
+
+      // Options
+      this.size = ko.observable(this.type().getSize(data.Size && data.Size.toLowerCase() || 'small'));
+      this.required = ko.observable(data.IsRequired === '1');
 
       this.previewTemplate = function() {
-        return self.type() + "-field-preview-template";
+        return self.type().name + "-field-preview-template";
+      };
+
+      this.settingsTemplate = function() {
+        return self.type().name + '-field-settings-template';
       };
     };
 
