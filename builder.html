@@ -52,8 +52,8 @@
         <div class="span6" id="sidebar">
           <ul class="tabs" data-tabs="tabs">
             <li class="active"><a href="#add-field-pane">Add a Field</a></li>
-            <li><a href="#field-settings">Field Settings</a></li>
-            <li><a href="#form-settings">Form Settings</a></li>
+            <li><a href="#field-settings" data-bind="tabActiveIf: selectedField">Field Settings</a></li>
+            <li><a href="#form-settings" data-bind="tabActiveIfNot: selectedField">Form Settings</a></li>
           </ul>
 
           <div id="my-tab-content" class="tab-content">
@@ -91,6 +91,9 @@
                 </div>
                 <div data-bind="template: { name: settingsTemplate, data: $data}"></div>
               </form>
+              <div data-bind="ifnot: selectedField">
+                <p>Select a field from the form.</p>
+              </div>
             </div>
 
             <div class="tab-pane" id="form-settings">
@@ -131,7 +134,6 @@
               </fieldset>
             </form>
           </div>
-
         </div>
       </div>
     </div>
@@ -207,10 +209,22 @@
   </script>
 
   <script>
-    ko.bindingHandlers.draggable = {
-      init: function(element, valueAccessor) {
-        var options = valueAccessor();
-        $(element).draggable(options);
+    ko.bindingHandlers.tabActiveIf = {
+      update: function(element, valueAccessor) {
+        var selected = valueAccessor()();
+        if (selected !== null) {
+          $(element).trigger('click');
+        }
+      }
+    };
+
+    ko.bindingHandlers.tabActiveIfNot = {
+      update: function(element, valueAccessor) {
+        var selected = valueAccessor()();
+        console.log(selected);
+        if (selected === null) {
+          $(element).trigger('click');
+        }
       }
     };
 
@@ -301,10 +315,7 @@
       };
 
       this.getJSON = function() {
-        // console.log(ko.toJSON(self.form));
-
-        self.form.fields.push(new FieldViewModel(FORM_EXAMPLE.Fields[0]));
-
+        console.log(ko.toJSON(self.form));
       };
 
       this.addField = function(data, event) {
