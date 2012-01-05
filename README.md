@@ -15,3 +15,8 @@ TODO
 - Better encapsulation of UI
 - One js file
 - Sortable fields
+
+
+Additions to the form json of wufoo
+
+- IsRandomized

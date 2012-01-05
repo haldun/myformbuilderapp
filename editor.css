@@ -65,10 +65,19 @@ body {
 }
 
 .field-wrapper:hover {
-  border: 1px dashed #c0c0c0;
+  border: 1px dashed #7CC07F;
 }
 
 .field-wrapper.selected {
   border: 1px solid #9ABA9E;
   background-color: #E1FFEE;
+}
+
+span.required {
+  color: red;
+}
+
+.add-field-pane .btn {
+  width: 125px;
+  margin: 0px 5px 5px 0px;
 }

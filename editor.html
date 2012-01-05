@@ -2,12 +2,13 @@
 <html>
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-  <title>deneme</title>
+  <title>Form Builder</title>
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="editor.css">
+  <script src="jquery.min.js"></script>
+  <script src="jquery-ui.min.js"></script>
   <script src="knockout-2.0.0.js"></script>
-  <script src="knockout.mapping-latest.js"></script>
-  <script src="form.js"></script>
+  <script src="editor.js"></script>
 </head>
 <body>
 
@@ -20,12 +21,13 @@
     <div class="row">
       <div class="span5 sidebar">
         <div data-bind="template: 'tmpl-form'"></div>
+        <div data-bind="template: 'tmpl-add-field'"></div>
         <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
       </div>
       <div class="span11 main-content" data-bind="with: form">
         <h2 data-bind="text: Name"></h2>
         <p data-bind="text: Description"></p>
-        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}" class="form-stacked"></form>
+        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}, sortableList: Fields" class="form-stacked"></form>
       </div>
     </div>
   </div>
@@ -46,16 +48,44 @@
   </form>
 </script>
 
+<!-- Add Field Pane -->
+<script type="text/html" id="tmpl-add-field">
+  <div class="add-field-pane" data-bind="click: $root.addField">
+    <h3>Add a Field</h3>
+    <button class="btn" data-type="text">Single Line Text</button>
+    <button class="btn" data-type="number">Number</button>
+    <button class="btn" data-type="textarea">Paragraph Text</button>
+    <button class="btn" data-type="checkbox">Checkboxes</button>
+    <button class="btn" data-type="radio">Multiple Choice</button>
+    <button class="btn" data-type="select">Dropdown</button>
+    <button class="btn" data-type="section">Section Break</button>
+    <button class="btn" data-type="page">Page Break</button>
+    <button class="btn" data-type="shortname">Name</button>
+    <button class="btn" data-type="file">File Upload</button>
+    <button class="btn" data-type="address">Address</button>
+    <button class="btn" data-type="date">Date</button>
+    <button class="btn" data-type="email">Email</button>
+    <button class="btn" data-type="time">Time</button>
+    <button class="btn" data-type="phone">Phone</button>
+    <button class="btn" data-type="url">Website</button>
+    <button class="btn" data-type="money">Price</button>
+    <button class="btn" data-type="likert">Likert</button>
+  </div>
+</script>
+
 <!-- Generic field preview template -->
 <script type="text/html" id="tmpl-field-preview">
   <div class="clearfix field-wrapper"
        data-bind="click: $root.selectField,
                   css: { selected: $data == $root.selectedField() }">
-    <label data-bind="text: Title"></label>
+    <label>
+      <span data-bind="if: IsRequired" class="required">*</span>
+      <span data-bind="text: Title"></span>
+    </label>
     <div data-bind="template: PreviewTemplateName"></div>
     <div class="pull-right">
-      <button data-bind="click: $parent.duplicateField" class="btn xsmall success">+</button>
-      <button data-bind="click: $parent.removeField" class="btn xsmall danger">×</button>
+      <button data-bind="click: $root.duplicateField" class="btn xsmall success">+</button>
+      <button data-bind="click: $root.removeField" class="btn xsmall danger">×</button>
     </div>
   </div>
 </script>
@@ -68,6 +98,10 @@
       <div class="clearfix">
         <label>Title</label>
         <textarea data-bind="value: Title"></textarea>
+      </div>
+      <div class="clearfix">
+        <label>Type</label>
+        <select data-bind="options: $root.FieldTypes, value: Typeof"></select>
       </div>
       <div class="clearfix">
         <label>
@@ -96,13 +130,22 @@
 <script type="text/html" id="tmp-field-settings-radio">
   <div class="clearfix">
     <label>Choices</label>
-      <ul data-bind="foreach: Choices" class="unstyled">
+    <ul data-bind="foreach: Choices" class="unstyled">
       <li>
-        <input data-bind="value: Choice" class="small">
-        <a data-bind="click: $parent.removeChoice" href="">Remove</a>
+        <input data-bind="value: Choice" class="">
+        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
+        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
       </li>
     </ul>
-    <button data-bind="click: addChoice" class="btn small">Add Choice</button>
+    <div data-bind="ifnot: HasChoices">
+      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
+    </div>
+  </div>
+  <div class="clearfix">
+    <label>
+      <input data-bind="checked: IsRandomized" type="checkbox">
+      <span>Randomized?</span>
+    </label>
   </div>
 </script>
 
@@ -123,7 +166,9 @@
 <script type="text/html" id="tmp-field-settings-section"></script>
 
 <!-- Textarea field -->
-<script type="text/html" id="tmp-field-preview-textarea"></script>
+<script type="text/html" id="tmp-field-preview-textarea">
+  <textarea></textarea>
+</script>
 <script type="text/html" id="tmp-field-settings-textarea"></script>
 
 <!-- Money field -->
@@ -131,63 +176,8 @@
 <script type="text/html" id="tmp-field-settings-money"></script>
 
 </body>
+<script src="form.js"></script>
 <script>
-var FormBuilderViewModel = function(data) {
-  var self = this;
-  this.form = new FormViewModel(data);
-  this.selectedField = ko.observable(null);
-
-  this.selectField = function(field) {
-    self.selectedField(field);
-  };
-};
-
-var FormViewModel = function(data) {
-  var self = this;
-  var mapping = {
-    'Fields': {
-      create: function(options) {
-        return new FieldViewModel(options.data);
-      }
-    }
-  };
-  ko.mapping.fromJS(data, mapping, this);
-
-  // Behaviour
-  this.duplicateField = function(field) {
-    var newField = ko.toJS(field),
-        index = ko.utils.arrayIndexOf(self.Fields(), field);
-    self.Fields.splice(index, 0, new FieldViewModel(newField));
-  };
-
-  this.removeField = function(field) {
-    self.Fields.remove(field);
-  };
-};
-
-var FieldViewModel = function(data) {
-  var self = this;
-  ko.mapping.fromJS(data, {}, this);
-
-  // Data
-  this.PreviewTemplateName = ko.computed(function(){
-    return "tmp-field-preview-" + this.Typeof();
-  }, this);
-
-  this.SettingsTemplateName = ko.computed(function(){
-    return "tmp-field-settings-" + this.Typeof();
-  }, this);
-
-  // Behaviour
-  this.addChoice = function() {
-    self.Choices.push(ko.mapping.fromJS({"Choice": ""}));
-  };
-
-  this.removeChoice = function(choice) {
-    self.Choices.remove(choice);
-  };
-}
-
 var builder = new FormBuilderViewModel(FORM_JSON);
 ko.applyBindings(builder);
 </script>
