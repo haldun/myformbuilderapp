@@ -164,22 +164,46 @@ var FieldViewModel = function(data) {
   };
 };
 
-ko.bindingHandlers.sortableList = {
-  init: function(element, valueAccessor) {
-    var list = valueAccessor();
-    $(element).sortable({
-      start: function(event, ui) {
-        $(this).data('old-index', ui.item.index());
-      },
-      update: function(event, ui) {
-        var oldIndex = $(this).data('old-index'),
-            newIndex = ui.item.index(),
-            item = list()[oldIndex];
-        // TODO Update array
-      }
-    });
-  }
-};
+(function() {
+  var __hasProp = Object.prototype.hasOwnProperty;
+  var data_key = "sortable_data";
+
+    ko.bindingHandlers['sortableList'] = {
+        init: function(element, valueAccessor) {
+            $(element).mousedown(function() {
+                // Keep track of the order of all child nodes (including text/comments)
+                $(this).data("preSortChildren", ko.utils.makeArray(this.childNodes));
+            });
+
+            return $(element).sortable({
+                update: function(event, ui) {
+                    // Figure out what data item was moved, from where, and to where
+                    var movedDataItem = $(ui.item).data(data_key);
+                    var possiblyObservableArray = valueAccessor();
+                    var array = ko.utils.unwrapObservable(possiblyObservableArray);
+                    var previousIndex = ko.utils.arrayIndexOf(array, movedDataItem);
+                    var newIndex = $(element).children().index(ui.item);
+
+                    // Restore the order of child nodes (including text/comments)
+                    this.innerHTML = "";
+                    $(this).append($(this).data("preSortChildren"));
+
+                    // Update the underlying collection to reflect the data item movement
+                    array.splice(previousIndex, 1);
+                    array.splice(newIndex, 0, movedDataItem);
+                    if (typeof possiblyObservableArray.valueHasMutated === 'function')
+                        possiblyObservableArray.valueHasMutated();
+                }
+            });
+        }
+    };
+
+  ko.bindingHandlers['sortableItem'] = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+      return $(element).data(data_key, ko.utils.unwrapObservable(valueAccessor()));
+    }
+  };
+}).call(this);
 
 ko.bindingHandlers.tab = {
   init: function(element, valueAccessor) {
