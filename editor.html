@@ -27,7 +27,8 @@
       <div class="span11 main-content" data-bind="with: form">
         <h2 data-bind="text: Name"></h2>
         <p data-bind="text: Description"></p>
-        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}, sortableList: Fields" class="form-stacked"></form>
+        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields},
+                         sortableList: Fields" class="form-stacked"></form>
       </div>
     </div>
   </div>
@@ -130,7 +131,7 @@
 <script type="text/html" id="tmp-field-preview-radio">
   <ul data-bind="foreach: Choices" class="unstyled">
     <label>
-      <input type="radio" data-bind="attr: {name: $parent.FieldId}">
+      <input type="radio" data-bind="attr: {name: $parent.FieldId}" disabled readonly>
       <span data-bind="text: Choice"></span>
     </label>
   </ul>
@@ -175,7 +176,7 @@
 
 <!-- Textarea field -->
 <script type="text/html" id="tmp-field-preview-textarea">
-  <textarea></textarea>
+  <textarea disabled readonly></textarea>
 </script>
 <script type="text/html" id="tmp-field-settings-textarea"></script>
 
