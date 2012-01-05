@@ -26,9 +26,6 @@ var FormBuilderViewModel = function(data) {
     var type = $(event.target).data("type");
     data.type = type;
     var field = self.Form.addField(data);
-    if (field) {
-      self.selectField(field);
-    }
   };
 
   this.removeField = function(field) {
@@ -81,6 +78,50 @@ var FormViewModel = function(data) {
       return false;
     }
     var newField = new FieldViewModel({Typeof: data.type});
+
+    // TODO This code should not be here
+    if ('checkbox' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Check all that apply",
+        Choices: [
+          {Choice: "First Choice"},
+          {Choice: "Second Choice"},
+          {Choice: "Third Choice"}
+        ]
+      }, {}, newField);
+    } else if ('number' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Number"
+      }, {}, newField);
+    } else if ('radio' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Select a Choice",
+        Choices: [
+          {Choice: "First Choice"},
+          {Choice: "Second Choice"},
+          {Choice: "Third Choice"}
+        ]
+      }, {}, newField);
+    } else if ('section' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Section Break",
+        Instructions: "A description of the section goes here."
+      }, {}, newField);
+    } else if ('shortname' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Name"
+      }, {}, newField);
+    } else if ('select' === data.type) {
+      ko.mapping.fromJS({
+        Title: "Select a Choice",
+        Choices: [
+          {Choice: "First Choice"},
+          {Choice: "Second Choice"},
+          {Choice: "Third Choice"}
+        ]
+      }, {}, newField);
+    }
+
     self.Fields.push(newField);
     return newField;
   };

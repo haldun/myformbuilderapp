@@ -185,7 +185,9 @@
 </script>
 
 <!-- Number field -->
-<script type="text/html" id="tmp-field-preview-number"></script>
+<script type="text/html" id="tmp-field-preview-number">
+  <input class="large">
+</script>
 <script type="text/html" id="tmp-field-settings-number"></script>
 
 <!-- Text field -->
@@ -195,12 +197,39 @@
 <script type="text/html" id="tmp-field-settings-text"></script>
 
 <!-- Checkboxes field -->
-<script type="text/html" id="tmp-field-preview-checkbox"></script>
-<script type="text/html" id="tmp-field-settings-checkbox"></script>
+<script type="text/html" id="tmp-field-preview-checkbox">
+  <ul data-bind="foreach: Choices" class="unstyled">
+    <label>
+      <input type="checkbox" data-bind="attr: {name: $parent.FieldId}" disabled readonly>
+      <span data-bind="text: Choice"></span>
+    </label>
+  </ul>
+</script>
+<script type="text/html" id="tmp-field-settings-checkbox">
+  <div class="clearfix">
+    <label>Choices</label>
+    <ul data-bind="foreach: Choices" class="unstyled">
+      <li>
+        <input data-bind="value: Choice" class="">
+        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
+        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
+      </li>
+    </ul>
+    <div data-bind="ifnot: HasChoices">
+      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
+    </div>
+  </div>
+</script>
 
 <!-- Section -->
-<script type="text/html" id="tmp-field-preview-section"></script>
+<script type="text/html" id="tmp-field-preview-section">
+  <p data-bind="text: Instructions"></p>
+</script>
 <script type="text/html" id="tmp-field-settings-section"></script>
+
+<!-- Page -->
+<script type="text/html" id="tmp-field-preview-page"></script>
+<script type="text/html" id="tmp-field-settings-page"></script>
 
 <!-- Textarea field -->
 <script type="text/html" id="tmp-field-preview-textarea">
@@ -208,14 +237,92 @@
 </script>
 <script type="text/html" id="tmp-field-settings-textarea"></script>
 
+<!-- Shortname field -->
+<script type="text/html" id="tmp-field-preview-shortname">
+  <input >
+  <input >
+</script>
+<script type="text/html" id="tmp-field-settings-shortname"></script>
+
+<!-- File field -->
+<script type="text/html" id="tmp-field-preview-file">
+  <input type="file">
+</script>
+<script type="text/html" id="tmp-field-settings-file"></script>
+
+<!-- Date field -->
+<script type="text/html" id="tmp-field-preview-date">
+  <input class="small"> / <input class="small"> / <input class="small">
+</script>
+<script type="text/html" id="tmp-field-settings-date"></script>
+
+<!-- Time field -->
+<script type="text/html" id="tmp-field-preview-time">
+  <input class="small"> : <input class="small">
+</script>
+<script type="text/html" id="tmp-field-settings-time"></script>
+
+<!-- Address field -->
+<script type="text/html" id="tmp-field-preview-address">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-address"></script>
+
 <!-- Money field -->
-<script type="text/html" id="tmp-field-preview-money"></script>
+<script type="text/html" id="tmp-field-preview-money">
+  <input>
+</script>
 <script type="text/html" id="tmp-field-settings-money"></script>
+
+<!-- Email field -->
+<script type="text/html" id="tmp-field-preview-email">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-email"></script>
+
+<!-- Phone field -->
+<script type="text/html" id="tmp-field-preview-phone">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-phone"></script>
+
+<!-- Select field -->
+<script type="text/html" id="tmp-field-preview-select">
+  <select data-bind="options: Choices, optionsText: 'Choice'"></select>
+</script>
+<script type="text/html" id="tmp-field-settings-select">
+  <div class="clearfix">
+    <label>Choices</label>
+    <ul data-bind="foreach: Choices" class="unstyled">
+      <li>
+        <input data-bind="value: Choice" class="">
+        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
+        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
+      </li>
+    </ul>
+    <div data-bind="ifnot: HasChoices">
+      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
+    </div>
+  </div>
+</script>
+
+<!-- URL field -->
+<script type="text/html" id="tmp-field-preview-url">
+  <input class="large">
+</script>
+<script type="text/html" id="tmp-field-settings-url"></script>
+
+<!-- Likert field -->
+<script type="text/html" id="tmp-field-preview-likert">
+  <strong>Not Implemented Yet</strong>
+</script>
+<script type="text/html" id="tmp-field-settings-likert"></script>
+
 
 </body>
 <script src="form.js"></script>
 <script>
-var builder = new FormBuilderViewModel({});
+var builder = new FormBuilderViewModel({Name: "My First Form"});
 ko.applyBindings(builder);
 </script>
 </html>
