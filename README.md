@@ -7,3 +7,11 @@ Callback urls configurable.
 Forms should be representable by json.
 Form builder loads a form.
 Themeable maybe.
+
+TODO
+
+- Better sidebar tab navigation
+- Make library
+- Better encapsulation of UI
+- One js file
+- Sortable fields

@@ -13,33 +13,6 @@
   <script src="knockout-2.0.0.js"></script>
   <script src="bootstrap-tabs.js"></script>
   <script src="form_example.js"></script>
-  <style type="text/css" media="screen">
-    #builder .field-wrapper {
-      display: block;
-      cursor: pointer;
-      text-decoration: none;
-      padding: 10px 10px 15px 10px;
-      border: 1px solid transparent;
-      margin: 0px 0px 10px 0px;
-    }
-    #builder .field-wrapper * {
-      cursor: pointer;
-      color: #000;
-    }
-    #builder .field-wrapper:hover {
-      border: 1px dashed #c0c0c0;
-    }
-
-    #builder .field-wrapper.selected {
-      border: 1px solid #9ABA9E;
-      background-color: #E1FFEE;
-    }
-
-    #builder #add-field-pane a {
-      width: 136px;
-    }
-
-  </style>
 </head>
 <body>
   <div class="container">
@@ -221,7 +194,6 @@
     ko.bindingHandlers.tabActiveIfNot = {
       update: function(element, valueAccessor) {
         var selected = valueAccessor()();
-        console.log(selected);
         if (selected === null) {
           $(element).trigger('click');
         }

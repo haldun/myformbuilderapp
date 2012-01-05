@@ -45,3 +45,26 @@ body {
 .topbar .btn {
   border: 0;
 }
+
+#builder .field-wrapper {
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 10px 10px 15px 10px;
+  border: 1px solid transparent;
+  margin: 0px 0px 10px 0px;
+}
+#builder .field-wrapper * {
+  cursor: pointer;
+  color: #000;
+}
+#builder .field-wrapper:hover {
+  border: 1px dashed #c0c0c0;
+}
+#builder .field-wrapper.selected {
+  border: 1px solid #9ABA9E;
+  background-color: #E1FFEE;
+}
+#builder #add-field-pane a {
+  width: 136px;
+}
