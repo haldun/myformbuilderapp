@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>deneme</title>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="editor.css">
+  <script src="knockout-2.0.0.js"></script>
+  <script src="knockout.mapping-latest.js"></script>
+  <script src="form.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="content">
+    <div class="page-header row">
+      <div class="pull-left"><h1>Form Builder</h1></div>
+      <div class="pull-right clearfix"><a href="" class="btn primary">Get JSON</a></div>
+    </div>
+    <div class="row">
+      <div class="span5 sidebar">
+        <div data-bind="template: 'tmpl-form'"></div>
+        <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
+      </div>
+      <div class="span11 main-content" data-bind="with: form">
+        <h2 data-bind="text: Name"></h2>
+        <p data-bind="text: Description"></p>
+        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}" class="form-stacked"></form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Form settings -->
+<script type="text/html" id="tmpl-form">
+  <h3>Form Settings</h3>
+  <form class="form-stacked">
+    <p>
+      <label>Name</label>
+      <input data-bind="value: form.Name">
+    </p>
+    <p>
+      <label>Description</label>
+      <textarea data-bind="value: form.Description"></textarea>
+    </p>
+  </form>
+</script>
+
+<!-- Generic field preview template -->
+<script type="text/html" id="tmpl-field-preview">
+  <div class="clearfix field-wrapper"
+       data-bind="click: $root.selectField,
+                  css: { selected: $data == $root.selectedField() }">
+    <label data-bind="text: Title"></label>
+    <div data-bind="template: PreviewTemplateName"></div>
+    <div class="pull-right">
+      <button data-bind="click: $parent.duplicateField" class="btn xsmall success">+</button>
+      <button data-bind="click: $parent.removeField" class="btn xsmall danger">×</button>
+    </div>
+  </div>
+</script>
+
+<!-- Generic field settings template -->
+<script type="text/html" id="tmpl-field-settings">
+  <div data-bind="if: $data">
+    <h3>Field Settings</h3>
+    <form class="form-stacked">
+      <div class="clearfix">
+        <label>Title</label>
+        <textarea data-bind="value: Title"></textarea>
+      </div>
+      <div class="clearfix">
+        <label>
+          <input type="checkbox" data-bind="checked: IsRequired">
+          <span>Required?</span>
+        </label>
+      </div>
+      <div class="clearfix">
+        <label>Instructions</label>
+        <textarea data-bind="value: Instructions"></textarea>
+      </div>
+      <div data-bind="template: SettingsTemplateName"></div>
+    </form>
+  </div>
+</script>
+
+<!-- Radio field -->
+<script type="text/html" id="tmp-field-preview-radio">
+  <ul data-bind="foreach: Choices" class="unstyled">
+    <label>
+      <input type="radio" data-bind="attr: {name: $parent.FieldId}">
+      <span data-bind="text: Choice"></span>
+    </label>
+  </ul>
+</script>
+<script type="text/html" id="tmp-field-settings-radio">
+  <div class="clearfix">
+    <label>Choices</label>
+      <ul data-bind="foreach: Choices" class="unstyled">
+      <li>
+        <input data-bind="value: Choice" class="small">
+        <a data-bind="click: $parent.removeChoice" href="">Remove</a>
+      </li>
+    </ul>
+    <button data-bind="click: addChoice" class="btn small">Add Choice</button>
+  </div>
+</script>
+
+<!-- Number field -->
+<script type="text/html" id="tmp-field-preview-number"></script>
+<script type="text/html" id="tmp-field-settings-number"></script>
+
+<!-- Text field -->
+<script type="text/html" id="tmp-field-preview-text"></script>
+<script type="text/html" id="tmp-field-settings-text"></script>
+
+<!-- Checkboxes field -->
+<script type="text/html" id="tmp-field-preview-checkbox"></script>
+<script type="text/html" id="tmp-field-settings-checkbox"></script>
+
+<!-- Section -->
+<script type="text/html" id="tmp-field-preview-section"></script>
+<script type="text/html" id="tmp-field-settings-section"></script>
+
+<!-- Textarea field -->
+<script type="text/html" id="tmp-field-preview-textarea"></script>
+<script type="text/html" id="tmp-field-settings-textarea"></script>
+
+<!-- Money field -->
+<script type="text/html" id="tmp-field-preview-money"></script>
+<script type="text/html" id="tmp-field-settings-money"></script>
+
+</body>
+<script>
+var FormBuilderViewModel = function(data) {
+  var self = this;
+  this.form = new FormViewModel(data);
+  this.selectedField = ko.observable(null);
+
+  this.selectField = function(field) {
+    self.selectedField(field);
+  };
+};
+
+var FormViewModel = function(data) {
+  var self = this;
+  var mapping = {
+    'Fields': {
+      create: function(options) {
+        return new FieldViewModel(options.data);
+      }
+    }
+  };
+  ko.mapping.fromJS(data, mapping, this);
+
+  // Behaviour
+  this.duplicateField = function(field) {
+    var newField = ko.toJS(field),
+        index = ko.utils.arrayIndexOf(self.Fields(), field);
+    self.Fields.splice(index, 0, new FieldViewModel(newField));
+  };
+
+  this.removeField = function(field) {
+    self.Fields.remove(field);
+  };
+};
+
+var FieldViewModel = function(data) {
+  var self = this;
+  ko.mapping.fromJS(data, {}, this);
+
+  // Data
+  this.PreviewTemplateName = ko.computed(function(){
+    return "tmp-field-preview-" + this.Typeof();
+  }, this);
+
+  this.SettingsTemplateName = ko.computed(function(){
+    return "tmp-field-settings-" + this.Typeof();
+  }, this);
+
+  // Behaviour
+  this.addChoice = function() {
+    self.Choices.push(ko.mapping.fromJS({"Choice": ""}));
+  };
+
+  this.removeChoice = function(choice) {
+    self.Choices.remove(choice);
+  };
+}
+
+var builder = new FormBuilderViewModel(FORM_JSON);
+ko.applyBindings(builder);
+</script>
+</html>

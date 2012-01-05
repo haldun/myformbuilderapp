@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>builder</title>
-  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="builder.css">
   <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -65,7 +65,12 @@
                 <div data-bind="template: { name: settingsTemplate, data: $data}"></div>
               </form>
               <div data-bind="ifnot: selectedField">
-                <p>Select a field from the form.</p>
+                <div class="alert-message block-message warning" >
+                  <p>
+                    <h5>No Field Selected</h5>
+                    Please click on a field in the form preview on the right to change its properties.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -98,12 +103,19 @@
           <div class="form-fields">
             <form class="form-stacked">
               <fieldset data-bind="foreach: form.fields, sortableList: form.fields">
-                <a class="field-wrapper" href=""
+                <div class="field-wrapper clearfix"
                    data-bind="click: $root.selectField,
                               css: { selected: $data == $root.selectedField() }">
-                  <label data-bind="text: title"></label>
+                  <label>
+                    <span data-bind="if: required" class="required">*</span>
+                    <span data-bind="text: title"></span>
+                  </label>
                   <div data-bind="template: { name: previewTemplate, data: $data}"></div>
-                </a>
+                  <div class="pull-right field-actions">
+                    <a data-bind="click: $root.duplicateField" class="small btn success">Duplicate</a>
+                    <a data-bind="click: $root.removeField" class="small btn danger">Remove</a>
+                  </div>
+                </div>
               </fieldset>
             </form>
           </div>
@@ -245,11 +257,7 @@
 
     var FieldTypes = [
       new FieldType('text', "Single Text Line", {
-        sizes: [
-          new Option('small', 'Small'),
-          new Option('medium', 'Medium'),
-          new Option('large', 'Large')
-        ]
+        sizes: ['Small', 'Medium', 'Large']
       }),
       new FieldType('select', "Drop Down"),
       new FieldType('textarea', "Paragraph Text"),
@@ -270,12 +278,12 @@
       return null;
     };
 
-    var FormBuilderViewModel = function(form) {
+    var FormBuilderViewModel = function(formJSON) {
       var self = this;
 
       this.FieldTypes = FieldTypes;
 
-      this.form = new FormViewModel(form.Name, form.Description, form.Fields);
+      this.form = new FormViewModel(formJSON);
       this.selectedField = ko.observable(null);
 
       this.selectField = function(field) {
@@ -299,29 +307,48 @@
         self.form.fields.push(newField);
         self.selectField(newField);
       };
+
+      this.removeField = function(data, event) {
+        if (data === self.selectedField()) {
+          self.selectedField(null);
+        }
+        self.form.fields.remove(data);
+      };
+
+      this.duplicateField = function(data, event) {
+        console.log("duplicateField");
+        console.log(data);
+        var newData = ko.toJS(data),
+            index = ko.utils.arrayIndexOf(self.form.fields(), data);
+        console.log(index);
+
+        console.log(newData);
+
+        self.form.fields.splice(index, 0, new FieldViewModel(newData));
+      };
     };
 
-    var FormViewModel = function(name, description, fieldsData) {
-      this.name = ko.observable(name);
-      this.description = ko.observable(description);
+    var FormViewModel = function(formJSON) {
+      this.name = ko.observable(formJSON.Name);
+      this.description = ko.observable(formJSON.Description);
 
       this.fields = ko.observableArray();
-      for (var i = 0, len = fieldsData.length; i  < len; i++) {
-        var fieldData = fieldsData[i];
-        this.fields.push(new FieldViewModel(fieldData));
+      for (var i = 0, len = formJSON.Fields.length; i  < len; i++) {
+        var fieldJSON = formJSON.Fields[i];
+        this.fields.push(new FieldViewModel(fieldJSON));
       }
     };
 
-    var FieldViewModel = function(data) {
+    var FieldViewModel = function(fieldJSON) {
       var self = this;
 
-      this.title = ko.observable(data.Title);
-      this.type = ko.observable(getFieldTypeByName(data.Typeof));
-      this.choices = ko.observable(data.Choices);
+      this.Title = ko.observable(fieldJSON.Title);
+      this.Typeof = ko.observable(getFieldTypeByName(fieldJSON.Typeof));
+      this.Choices = ko.observable(fieldJSON.Choices || []);
 
       // Options
-      this.size = ko.observable(this.type().getSize(data.Size && data.Size.toLowerCase() || 'small'));
-      this.required = ko.observable(data.IsRequired === '1');
+      this.Size = ko.observable(this.Typeof().getSize(fieldJSON.Size && fieldJSON.Size.toLowerCase() || 'small'));
+      this.IsRequired = ko.observable(fieldJSON.IsRequired && fieldJSON.IsRequired !== '0');
 
       this.previewTemplate = function() {
         return self.type().name + "-field-preview-template";

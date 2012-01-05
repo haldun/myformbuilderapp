@@ -52,7 +52,7 @@ var FORM_EXAMPLE = {
     "Instructions": "",
     "Typeof": "text",
     "Size": "large",
-    "IsRequired": "0",
+    "IsRequired": "1",
     "IsUnique": "0",
     "IsPrivate": "0",
     "Validation": "",
