@@ -3,36 +3,151 @@
 <head>
   <meta charset="utf-8">
   <title>builder</title>
-  <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <script src="jquery.min.js"></script>
+  <script src="knockout-2.0.0.js"></script>
+  <script src="form_example.js"></script>
   <script src="builder.js"></script>
-
-  <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css" type="text/css" media="all">
   <style type="text/css" media="screen">
-  /*.fb-editor .sidebar {
-      width: 200px;
-      float: left;
-    }*/
+    #builder .form-fields .field-wrapper {
+      padding: 5px;
+      border: 1px solid transparent;
+    }
+
+    #builder .form-fields .field-wrapper.selected {
+      border: 1px solid #C2D7EF;
+      background-color: #DFEFFF;
+    }
   </style>
 </head>
 <body>
   <h1>Form Builder</h1>
-  <div id="builder"></div>
+  <div id="builder">
+    <div class="row">
+      <div class="span6">
+        <div class="form-settings">
+          <h3>Form Settings</h3>
+          <form class="form-stacked">
+            <div class="clearfix">
+              <label for="form-name">Name</label>
+              <div class="input">
+                <input data-bind="value: form.name" class="xlarge" id="form-name" size="30" type="text">
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="form-description">Description</label>
+              <div class="input">
+                <textarea data-bind="value: form.description" class="xlarge"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="field-settings" data-bind="with: selectedField">
+          <h3>Field Settings</h3>
+          <form class="form-stacked">
+            <div class="clearfix">
+              <label for="field-name">Title</label>
+              <div class="input">
+                <input data-bind="value: title" class="xlarge" id="field-name" size="30" type="text">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="span10">
+        <div class="form-header">
+          <h2 data-bind="text: form.name"></h2>
+          <p data-bind="text: form.description"></p>
+        </div>
+        <div class="form-fields">
+          <form class="form-stacked">
+            <fieldset data-bind="foreach: form.fields">
+              <div class="field-wrapper" data-bind="click: $root.selectField, css: { selected: $data == $root.selectedField() }">
+                <label data-bind="text: title"></label>
+                <div data-bind="template: { name: previewTemplate, data: $data}"></div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/html" id="text-field-preview-template">
+    <input type="text">
+  </script>
+
+  <script type="text/html" id="select-field-preview-template">
+    <select data-bind="foreach: choices" disabled>
+      <option data-bind="text: Choice"></option>
+    </select>
+  </script>
+
+  <script type="text/html" id="textarea-field-preview-template">
+    <textarea></textarea>
+  </script>
+
+  <script type="text/html" id="date-field-preview-template">
+    <input class="small">
+    <input class="small">
+    <input class="small">
+  </script>
+
+  <script type="text/html" id="time-field-preview-template">
+    <input class="small">
+    <input class="small">
+    <input class="small">
+  </script>
+
+  <script type="text/html" id="address-field-preview-template">
+    <span data-bind="text: title"></span>
+  </script>
+
+  <script type="text/html" id="checkbox-field-preview-template">
+    <span data-bind="text: title"></span>
+  </script>
+
+  <script type="text/html" id="money-field-preview-template">
+    <span data-bind="text: title"></span>
+  </script>
+
   <script>
-    $('#builder').editor({
-      form: {
-        name: 'Seminar Form',
-        description: "This is my form. Please fill it out. It's awesome.",
-        fields: [
-          {
-            title: "Name",
-            instructions: "",
-            typeof: "shortname"
-          }
-        ]
+    var FormBuilderViewModel = function(form) {
+      var self = this;
+
+      this.form = new FormViewModel(form.Name, form.Description, form.Fields);
+      this.selectedField = ko.observable(null);
+
+      this.selectField = function(field) {
+        self.selectedField(field);
+      };
+    };
+
+    var FormViewModel = function(name, description, fieldsData) {
+      this.name = ko.observable(name);
+      this.description = ko.observable(description);
+
+      this.fields = ko.observableArray();
+      for (var i = 0, len = fieldsData.length; i  < len; i++) {
+        var fieldData = fieldsData[i];
+        this.fields.push(new FieldViewModel(fieldData));
       }
-    });
+    };
+
+    var FieldViewModel = function(data) {
+      var self = this;
+      this.title = ko.observable(data.Title);
+      this.type = ko.observable(data.Typeof);
+      this.choices = ko.observable(data.Choices)
+
+      this.previewTemplate = function() {
+        return self.type() + "-field-preview-template";
+      };
+    };
+
+    window.formViewModel = new FormBuilderViewModel(FORM_EXAMPLE);
+    ko.applyBindings(formViewModel);
   </script>
 </body>
 </html>
