@@ -8,6 +8,7 @@
   <script src="jquery.min.js"></script>
   <script src="jquery-ui.min.js"></script>
   <script src="knockout-2.0.0.js"></script>
+  <script src="bootstrap-tabs.js"></script>
   <script src="editor.js"></script>
 </head>
 <body>
@@ -19,15 +20,38 @@
       <div class="pull-right clearfix"><a href="" class="btn success">Get JSON</a></div>
     </div>
     <div class="row">
-      <div class="span5 sidebar">
-        <div data-bind="template: 'tmpl-form'"></div>
-        <div data-bind="template: 'tmpl-add-field'"></div>
-        <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
+      <div class="span6 sidebar">
+        <ul class="tabs" data-tabs="tabs" data-bind="tab: $root.CurrentTab">
+          <li class="active"><a href="#add-field-pane">Add a Field</a></li>
+          <li><a href="#field-settings-pane">Field Settings</a></li>
+          <li><a href="#form-settings-pane">Form Settings</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="add-field-pane">
+            <div data-bind="template: 'tmpl-add-field'"></div>
+          </div>
+          <div class="tab-pane" id="field-settings-pane">
+            <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
+          </div>
+          <div class="tab-pane" id="form-settings-pane">
+            <div data-bind="template: 'tmpl-form'"></div>
+          </div>
+        </div>
       </div>
-      <div class="span11 main-content" data-bind="with: form">
+      <div class="span10 main-content" data-bind="with: Form">
         <h2 data-bind="text: Name"></h2>
         <p data-bind="text: Description"></p>
-        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}, sortableList: Fields" class="form-stacked"></form>
+        <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}, sortableList: Fields"
+              class="form-stacked"></form>
+        <div data-bind="ifnot: HasFields">
+          <div class="alert-message block-message warning">
+            <p><strong>Hey, there is no fields!</strong> Currently, you don't have
+              any fields.</p>
+            <div class="alert-actions">
+              <button class="btn small" data-bind="click: $root.createFirstField">Create a field for me</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,11 +71,11 @@
   <form class="form-stacked">
     <p>
       <label>Name</label>
-      <input data-bind="value: form.Name">
+      <input data-bind="value: Form.Name">
     </p>
     <p>
       <label>Description</label>
-      <textarea data-bind="value: form.Description"></textarea>
+      <textarea data-bind="value: Form.Description"></textarea>
     </p>
   </form>
 </script>
@@ -105,7 +129,7 @@
     <form class="form-stacked">
       <div class="clearfix">
         <label>Title</label>
-        <textarea data-bind="value: Title"></textarea>
+        <textarea data-bind="value: Title" class="xlarge"></textarea>
       </div>
       <div class="clearfix">
         <label>Type</label>
@@ -123,6 +147,9 @@
       </div>
       <div data-bind="template: SettingsTemplateName"></div>
     </form>
+  </div>
+  <div data-bind="ifnot: $data">
+  Select a field.
   </div>
 </script>
 
@@ -162,7 +189,9 @@
 <script type="text/html" id="tmp-field-settings-number"></script>
 
 <!-- Text field -->
-<script type="text/html" id="tmp-field-preview-text"></script>
+<script type="text/html" id="tmp-field-preview-text">
+  <input class="xlarge">
+</script>
 <script type="text/html" id="tmp-field-settings-text"></script>
 
 <!-- Checkboxes field -->
@@ -175,7 +204,7 @@
 
 <!-- Textarea field -->
 <script type="text/html" id="tmp-field-preview-textarea">
-  <textarea></textarea>
+  <textarea class="xlarge"></textarea>
 </script>
 <script type="text/html" id="tmp-field-settings-textarea"></script>
 
@@ -186,7 +215,7 @@
 </body>
 <script src="form.js"></script>
 <script>
-var builder = new FormBuilderViewModel(FORM_JSON);
+var builder = new FormBuilderViewModel({});
 ko.applyBindings(builder);
 </script>
 </html>
