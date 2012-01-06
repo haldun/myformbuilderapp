@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta charset="utf-8">
   <title>Form Builder</title>
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="editor.css">
@@ -32,7 +32,7 @@
             <div data-bind="template: 'tmpl-add-field'"></div>
           </div>
           <div class="tab-pane" id="field-settings-pane">
-            <div data-bind="template: {name: 'tmpl-field-settings', data: selectedField }"></div>
+            <div data-bind="template: {name: 'tmpl-field-settings', data: SelectedField }"></div>
           </div>
           <div class="tab-pane" id="form-settings-pane">
             <div data-bind="template: 'tmpl-form'"></div>
@@ -109,7 +109,7 @@
 <script type="text/html" id="tmpl-field-preview">
   <div class="clearfix field-wrapper"
        data-bind="click: $root.selectField,
-                  css: { selected: $data == $root.selectedField() },
+                  css: { selected: $data == $root.SelectedField() },
                   sortableItem: $data">
     <label>
       <span data-bind="if: IsRequired" class="required">*</span>
@@ -133,7 +133,7 @@
       </div>
       <div class="clearfix">
         <label>Type</label>
-        <select data-bind="options: $root.FieldTypes, value: Typeof"></select>
+        <select data-bind="options: FieldTypes, value: Typeof"></select>
       </div>
       <div class="clearfix">
         <label>
@@ -163,25 +163,7 @@
   </ul>
 </script>
 <script type="text/html" id="tmp-field-settings-radio">
-  <div class="clearfix">
-    <label>Choices</label>
-    <ul data-bind="foreach: Choices" class="unstyled">
-      <li>
-        <input data-bind="value: Choice" class="">
-        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
-        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
-      </li>
-    </ul>
-    <div data-bind="ifnot: HasChoices">
-      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
-    </div>
-  </div>
-  <div class="clearfix">
-    <label>
-      <input data-bind="checked: IsRandomized" type="checkbox">
-      <span>Randomized?</span>
-    </label>
-  </div>
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
 </script>
 
 <!-- Number field -->
@@ -206,19 +188,7 @@
   </ul>
 </script>
 <script type="text/html" id="tmp-field-settings-checkbox">
-  <div class="clearfix">
-    <label>Choices</label>
-    <ul data-bind="foreach: Choices" class="unstyled">
-      <li>
-        <input data-bind="value: Choice" class="">
-        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
-        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
-      </li>
-    </ul>
-    <div data-bind="ifnot: HasChoices">
-      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
-    </div>
-  </div>
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
 </script>
 
 <!-- Section -->
@@ -291,19 +261,7 @@
   <select data-bind="options: Choices, optionsText: 'Choice'"></select>
 </script>
 <script type="text/html" id="tmp-field-settings-select">
-  <div class="clearfix">
-    <label>Choices</label>
-    <ul data-bind="foreach: Choices" class="unstyled">
-      <li>
-        <input data-bind="value: Choice" class="">
-        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
-        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
-      </li>
-    </ul>
-    <div data-bind="ifnot: HasChoices">
-      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
-    </div>
-  </div>
+  <div data-bind="template: 'tmp-choices', data: $data"></div>
 </script>
 
 <!-- URL field -->
@@ -318,12 +276,34 @@
 </script>
 <script type="text/html" id="tmp-field-settings-likert"></script>
 
+<!-- Helpers -->
+<script type="text/html" id="tmp-choices">
+  <div class="clearfix">
+    <label>Choices</label>
+    <ul data-bind="foreach: Choices" class="unstyled">
+      <li>
+        <input data-bind="value: Choice" class="">
+        <button data-bind="click: $parent.addChoice" class="btn xsmall success">+</button>
+        <button data-bind="click: $parent.removeChoice" class="xsmall btn danger">×</button>
+      </li>
+    </ul>
+    <div data-bind="ifnot: HasChoices">
+      <button data-bind="click: addChoice" class="btn xsmall success">+ Add a Choice</button>
+    </div>
+  </div>
+  <div class="clearfix">
+    <label>
+      <input data-bind="checked: IsRandomized" type="checkbox">
+      <span>Randomized?</span>
+    </label>
+  </div>
+</script>
 
 </body>
 <script src="form.js"></script>
 <script>
 var formData = FORM_JSON;
-var builder = new FormBuilderViewModel(formData);
+var builder = new EditorViewModel(formData);
 ko.applyBindings(builder);
 </script>
 </html>

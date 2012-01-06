@@ -1,40 +1,65 @@
-var FormBuilderViewModel = function(data) {
-  var self = this;
+// TODO Add namespace
 
-  // Constants
-  this.FieldTypes = FormBuilderViewModel.FieldTypes;
+// Constants
+var Tabs = {
+  ADD_FIELD_TAB: 0,
+  FIELD_SETTINGS_TAB: 1,
+  FORM_SETTINGS_TAB: 2
+};
+
+var FieldTypes = [
+  "text", "number", "textarea", "checkbox", "radio", "select", "section",
+  "page", "shortname", "file", "address", "date", "email", "time", "phone",
+  "url", "money", "likert"
+];
+
+// Root view model
+var EditorViewModel = function(data) {
+  var self = this;
 
   // Data
   this.Form = new FormViewModel(data);
-  this.CurrentTab = ko.observable(0);
-  this.selectedField = ko.observable(null);
+  this.CurrentTab = ko.observable(Tabs.ADD_FIELD_TAB);
+  this.SelectedField = ko.observable(null);
 
   // Behaviour
   this.selectField = function(field) {
-    self.selectedField(field);
-    self.CurrentTab(1);
+    self.SelectedField(field);
+    self.CurrentTab(Tabs.FIELD_SETTINGS_TAB);
   };
 
+  // Duplicates the given field by delegating to FormViewModel
   this.duplicateField = function(field) {
     var field = self.Form.duplicateField(field);
     if (field) {
-      self.selectedField(field);
+      self.SelectedField(field);
     }
   };
 
+  // Adds a new field from given data. event is used to get the type of the
+  // new field. Actually delegates to the FormViewModel
   this.addField = function(data, event) {
     var type = $(event.target).data("type");
     data.type = type;
     var field = self.Form.addField(data);
+
+    // Scroll to the field
+    // TODO This should not be here
+    if (field) {
+      $("html, body").animate({
+        scrollTop: $(".field-wrapper:last").offset().top
+      }, 1000);
+    }
   };
 
+  // Removes the given field. Actually delegates to the FormViewModel
   this.removeField = function(field) {
-    if (field === self.selectedField()) {
-      self.selectedField(null);
+    if (field === self.SelectedField()) {
+      self.SelectedField(null);
     }
     self.Form.removeField(field);
-    if (!self.Form.HasFields() && self.CurrentTab() === 1) {
-      self.CurrentTab(0);
+    if (!self.Form.HasFields() && self.CurrentTab() === Tabs.FIELD_SETTINGS_TAB) {
+      self.CurrentTab(Tabs.ADD_FIELD_TAB);
     }
   };
 
@@ -44,10 +69,7 @@ var FormBuilderViewModel = function(data) {
     self.selectField(field);
   };
 };
-FormBuilderViewModel.FieldTypes = [
-  "text", "number", "textarea", "checkbox", "radio", "select", "section",
-  "page", "shortname", "file", "address", "date", "email", "time", "phone",
-  "url", "money", "likert"];
+// EditorViewModel.FieldTypes =
 
 var getDefaultDataForType = function(type) {
   switch (type) {
@@ -182,6 +204,7 @@ var FieldViewModel = function(data) {
   };
 };
 
+// Custom ko bindings
 ko.bindingHandlers.tab = {
   init: function(element, valueAccessor) {
     var currentTab = valueAccessor();
@@ -195,11 +218,10 @@ ko.bindingHandlers.tab = {
     $(element).find('li:nth(' + currentTab + ') a:first').trigger('click');
     // Dirty hack
     if (currentTab !== 1) {
-      viewModel.selectedField(null);
+      viewModel.SelectedField && viewModel.SelectedField(null);
     }
   }
 };
-
 
 (function() {
   var __hasProp = Object.prototype.hasOwnProperty;
