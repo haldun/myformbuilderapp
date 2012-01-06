@@ -22,7 +22,7 @@ var EditorViewModel = function(data) {
 
   // Helper data
   this.FormSettingsSelected = ko.computed(function(){
-    this.CurrentTab() === Tabs.FORM_SETTINGS_TAB
+    return this.CurrentTab() === Tabs.FORM_SETTINGS_TAB
   }, this);
 
   this.SelectedFieldIndex = ko.computed(function() {
@@ -154,12 +154,15 @@ var getDefaultDataForType = function(type) {
     return {
       Title: "Name"
     };
+  case "phone":
+    return {
+      Title: "Phone"
+    };
   case 'file':
   case 'address':
   case "date":
   case "email":
   case "time":
-  case "phone":
   case "url":
   case "money":
   case "likert":
