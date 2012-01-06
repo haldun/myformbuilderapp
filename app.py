@@ -29,6 +29,7 @@ class Application(tornado.web.Application):
       url(r'/auth/google', GoogleAuthHandler),
       url(r'/logout', LogoutHandler, name='logout'),
       url(r'/home', HomeHandler, name='home'),
+      url(r'/editor', EditorHandler, name='editor'),
     ]
     settings = dict(
       cookie_secret=self.config['cookie_secret'],
@@ -101,6 +102,12 @@ class HomeHandler(BaseHandler):
   def get(self):
     self.render('home.html',
                 forms=self.db.forms.find({'user_id': self.current_user['_id']}))
+
+
+class EditorHandler(BaseHandler):
+  @tornado.web.authenticated
+  def get(self):
+    self.render('editor.html')
 
 
 def main():
