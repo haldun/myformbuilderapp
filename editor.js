@@ -33,6 +33,9 @@ var FormBuilderViewModel = function(data) {
       self.selectedField(null);
     }
     self.Form.removeField(field);
+    if (!self.Form.HasFields() && self.CurrentTab() === 1) {
+      self.CurrentTab(0);
+    }
   };
 
   this.createFirstField = function() {
@@ -45,6 +48,64 @@ FormBuilderViewModel.FieldTypes = [
   "text", "number", "textarea", "checkbox", "radio", "select", "section",
   "page", "shortname", "file", "address", "date", "email", "time", "phone",
   "url", "money", "likert"];
+
+var getDefaultDataForType = function(type) {
+  switch (type) {
+  case 'text': return {};
+  case 'number':
+    return {
+      Title: "Number"
+    };
+  case 'textarea': return {};
+  case 'checkbox':
+    return {
+      Title: "Check all that apply",
+      Choices: [
+        {Choice: "First Choice"},
+        {Choice: "Second Choice"},
+        {Choice: "Third Choice"}
+      ]
+    };
+  case 'radio':
+    return {
+      Title: "Select a Choice",
+      Choices: [
+        {Choice: "First Choice"},
+        {Choice: "Second Choice"},
+        {Choice: "Third Choice"}
+      ]
+    };
+  case 'select':
+    return {
+      Title: "Select a Choice",
+      Choices: [
+        {Choice: "First Choice"},
+        {Choice: "Second Choice"},
+        {Choice: "Third Choice"}
+      ]
+    };
+  case 'section':
+    return {
+      Title: "Section Break",
+      Instructions: "A description of the section goes here."
+    };
+  case 'page': return {};
+  case 'shortname':
+    return {
+      Title: "Name"
+    };
+  case 'file':
+  case 'address':
+  case "date":
+  case "email":
+  case "time":
+  case "phone":
+  case "url":
+  case "money":
+  case "likert":
+  default: return {}
+  }
+};
 
 var FormViewModel = function(data) {
   var self = this;
@@ -78,50 +139,7 @@ var FormViewModel = function(data) {
       return false;
     }
     var newField = new FieldViewModel({Typeof: data.type});
-
-    // TODO This code should not be here
-    if ('checkbox' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Check all that apply",
-        Choices: [
-          {Choice: "First Choice"},
-          {Choice: "Second Choice"},
-          {Choice: "Third Choice"}
-        ]
-      }, {}, newField);
-    } else if ('number' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Number"
-      }, {}, newField);
-    } else if ('radio' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Select a Choice",
-        Choices: [
-          {Choice: "First Choice"},
-          {Choice: "Second Choice"},
-          {Choice: "Third Choice"}
-        ]
-      }, {}, newField);
-    } else if ('section' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Section Break",
-        Instructions: "A description of the section goes here."
-      }, {}, newField);
-    } else if ('shortname' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Name"
-      }, {}, newField);
-    } else if ('select' === data.type) {
-      ko.mapping.fromJS({
-        Title: "Select a Choice",
-        Choices: [
-          {Choice: "First Choice"},
-          {Choice: "Second Choice"},
-          {Choice: "Third Choice"}
-        ]
-      }, {}, newField);
-    }
-
+    ko.mapping.fromJS(getDefaultDataForType(data.type), {}, newField);
     self.Fields.push(newField);
     return newField;
   };
