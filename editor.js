@@ -86,17 +86,27 @@ var EditorViewModel = function(data) {
     self.selectField(field);
   };
 
-  // Setup keyboard shortcuts
-  $(document).bind('keydown', 'backspace', function(){
+  this.removeSelectedField = function() {
     var selectedField = self.SelectedField();
     if (selectedField !== null) {
       self.removeField(selectedField);
     }
-  }).bind('keydown', 'j', function(){
+  };
+
+  this.selectNextField = function(){
     self.selectFieldAtIndex(self.SelectedFieldIndex() + 1);
-  }).bind('keydown', 'k', function(){
+  };
+
+  this.selectPrevField = function(){
     self.selectFieldAtIndex(self.SelectedFieldIndex() - 1);
-  });
+  };
+
+  // Setup keyboard shortcuts
+  $(document)
+    .bind('keydown', 'backspace', this.removeSelectedField)
+    .bind('keydown', 'del', this.removeSelectedField)
+    .bind('keydown', 'j', this.selectNextField)
+    .bind('keydown', 'k', this.selectPrevField);
 };
 
 var getDefaultDataForType = function(type) {
