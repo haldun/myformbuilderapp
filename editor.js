@@ -245,7 +245,7 @@ ko.bindingHandlers.tab = {
     var currentTab = valueAccessor()();
     $(element).find('li:nth(' + currentTab + ') a:first').trigger('click');
     // Dirty hack
-    if (currentTab !== 1) {
+    if (currentTab !== Tabs.FIELD_SETTINGS_TAB) {
       viewModel.SelectedField && viewModel.SelectedField(null);
     }
   }

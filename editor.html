@@ -41,7 +41,8 @@
         </div>
       </div>
       <div class="span10 main-content" data-bind="with: Form">
-        <div data-bind="click: $root.showFormSettings, css: { selected: $root.FormSettingsSelected }">
+        <div class="field-wrapper"
+             data-bind="click: $root.showFormSettings, css: { selected: $root.FormSettingsSelected }">
           <h2 data-bind="text: Name"></h2>
           <p data-bind="text: Description"></p>
         </div>
