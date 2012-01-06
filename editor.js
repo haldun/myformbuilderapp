@@ -1,5 +1,3 @@
-// TODO Add namespace
-
 // Constants
 var Tabs = {
   ADD_FIELD_TAB: 0,
