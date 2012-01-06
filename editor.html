@@ -10,6 +10,7 @@
   <script src="knockout-latest.debug.js"></script>
   <script src="knockout.mapping-latest.js"></script>
   <script src="bootstrap-tabs.js"></script>
+  <script src="jquery.hotkeys.js"></script>
   <script src="editor.js"></script>
 </head>
 <body>
@@ -40,9 +41,10 @@
         </div>
       </div>
       <div class="span10 main-content" data-bind="with: Form">
-        <h2 data-bind="text: Name"></h2>
-        <p data-bind="text: Description"></p>
-
+        <div data-bind="click: $root.showFormSettings, css: { selected: $root.FormSettingsSelected }">
+          <h2 data-bind="text: Name"></h2>
+          <p data-bind="text: Description"></p>
+        </div>
         <form data-bind="template: {name: 'tmpl-field-preview', foreach: Fields}, sortableList: Fields"
               class="form-stacked"></form>
         <div data-bind="ifnot: HasFields">
@@ -61,9 +63,7 @@
 
 <footer class="footer">
   <div class="container">
-    <p>
-      hb
-    </p>
+    <p>formbuilder</p>
   </div>
 </footer>
 

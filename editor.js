@@ -20,10 +20,29 @@ var EditorViewModel = function(data) {
   this.CurrentTab = ko.observable(Tabs.ADD_FIELD_TAB);
   this.SelectedField = ko.observable(null);
 
+  // Helper data
+  this.FormSettingsSelected = ko.computed(function(){
+    this.CurrentTab() === Tabs.FORM_SETTINGS_TAB
+  }, this);
+
+  this.SelectedFieldIndex = ko.computed(function() {
+    return self.Form.Fields.indexOf(self.SelectedField());
+  }, this);
+
   // Behaviour
+  this.showFormSettings = function() {
+    self.CurrentTab(Tabs.FORM_SETTINGS_TAB);
+  };
+
   this.selectField = function(field) {
     self.SelectedField(field);
     self.CurrentTab(Tabs.FIELD_SETTINGS_TAB);
+  };
+
+  this.selectFieldAtIndex = function(index) {
+    if (index >= 0 && index < self.Form.Fields().length) {
+      self.selectField(self.Form.Fields()[index]);
+    }
   };
 
   // Duplicates the given field by delegating to FormViewModel
@@ -66,8 +85,19 @@ var EditorViewModel = function(data) {
     field.Title("This is my first field, yeay!");
     self.selectField(field);
   };
+
+  // Setup keyboard shortcuts
+  $(document).bind('keydown', 'backspace', function(){
+    var selectedField = self.SelectedField();
+    if (selectedField !== null) {
+      self.removeField(selectedField);
+    }
+  }).bind('keydown', 'j', function(){
+    self.selectFieldAtIndex(self.SelectedFieldIndex() + 1);
+  }).bind('keydown', 'k', function(){
+    self.selectFieldAtIndex(self.SelectedFieldIndex() - 1);
+  });
 };
-// EditorViewModel.FieldTypes =
 
 var getDefaultDataForType = function(type) {
   switch (type) {
