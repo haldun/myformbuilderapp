@@ -1,3 +1,4 @@
 debug: true
 port: 8080
 cookie_secret: aud81u2-03pokjasdlnasxcmniawhasdyifgqweoukdhsaiy2kh3baisdu
+db: formbuilder_development
